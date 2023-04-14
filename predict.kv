@@ -1,0 +1,167 @@
+WindowManager:
+    StartWindow:
+    AttributeWindow:
+    PredictWindow:
+
+
+<StartWindow>:
+    name: "Start"
+
+    Image:
+        source: 'background.png'
+    
+    MDRaisedButton:
+        pos_hint: {'center_x':0.45, 'center_y':0.25}
+        id: red_button
+        text: 'RED'
+        on_press: 
+            app.root.current = "Attribute"
+            root.manager.transition.direction = "left"
+            root.get_wine_type()
+            
+        
+    MDRaisedButton:
+        pos_hint: {'center_x':0.55, 'center_y':0.25}
+        id: white_button
+        text: 'WHITE'
+        on_press: 
+            app.root.current = "Attribute"
+            root.manager.transition.direction = "left"
+            root.get_wine_type()
+
+<AttributeWindow>:
+    name: "Attribute"
+
+    MDTextField:
+        hint_text: "Fixed acidity"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .95}
+        size_hint_x: None
+        width: 300
+        id: text_field1
+
+    MDTextField:
+        hint_text: "Volatile acidity"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .88}
+        size_hint_x: None
+        width: 300
+        id: text_field2
+
+    MDTextField:
+        hint_text: "Citric acid"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .81}
+        size_hint_x: None
+        width: 300
+        id: text_field3
+
+    MDTextField:
+        hint_text: "Free sulfur dioxide"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .74}
+        size_hint_x: None
+        width: 300
+        id: text_field4
+
+
+    MDTextField:
+        hint_text: "Residual sugar"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .67}
+        size_hint_x: None
+        width: 300
+        id: text_field5
+
+    MDTextField:
+        hint_text: "Chlorides"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .6}
+        size_hint_x: None
+        width: 300
+        id: text_field6
+
+    MDTextField:
+        hint_text: "Total sulfur dioxide"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .53}
+        size_hint_x: None
+        width: 300
+        id: text_field7
+
+    MDTextField:
+        hint_text: "Density"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .46}
+        size_hint_x: None
+        width: 300
+        id: text_field8
+
+    MDTextField:
+        hint_text: "pH"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .39}
+        size_hint_x: None
+        width: 300
+        id: text_field9
+
+    MDTextField:
+        hint_text: "Sulphates"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .32}
+        size_hint_x: None
+        width: 300
+        id: text_field10
+
+    MDTextField:
+        id: text_field11
+        hint_text: "Alcohol"
+        mode: "rectangle"
+        pos_hint: {"center_x": .5, "center_y": .25}
+        size_hint_x: None
+        width: 300
+        id: text_field11
+
+    MDRaisedButton:
+        pos_hint: {'center_x':0.5, 'center_y':0.15}
+        text: 'Predict'
+        on_press: 
+            app.root.current = "Predict"
+            root.manager.transition.direction = "left"
+            root.on_click_predict()
+
+
+    MDRaisedButton:
+        pos_hint: {'center_x':0.5, 'center_y':0.05}
+        text: 'Go back'
+        on_press:
+            app.root.current = "Start"
+            root.manager.transition.direction = "right"
+            root.go_back()
+
+<PredictWindow>:
+    name: "Predict"
+    prediction_label: prediction_label
+    accuracy_label: accuracy_label
+
+    MDLabel:
+        id: prediction_label
+        text: 'Your wine quality'
+        halign: 'center'
+        pos_hint: {'center_y':0.9}
+        font_style: 'H4'
+
+    MDLabel:
+        id: accuracy_label
+        text: "Accuracy: 0%"
+        font_size: 20
+        bold: True
+        pos_hint: {'center_y':0.5}
+        halign: 'center'
+
+    MDRaisedButton:
+        pos_hint: {'center_x':0.5, 'center_y':0.05}
+        text: 'Go back'
+        on_press:
+            app.root.current = "Attribute"
+            root.manager.transition.direction = "right"
