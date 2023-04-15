@@ -72,4 +72,4 @@ Troubleshooting
 
 Contact information
 If having any questions or issues with the code, please contact me at:
-martherasmussen@hotmail.com 
+martherasmussen[@]hotmail.com 
