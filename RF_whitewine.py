@@ -24,6 +24,14 @@ plt.figure(figsize=[19,10],facecolor='white')
 sb.heatmap(df.corr(),annot=True)
 #plt.show()
 
+# Create new features - Feature Engineering
+#df['total_acidity'] = df['fixed acidity'] + df['volatile acidity']
+
+# Create new features - Feature Engineering
+#df['alcohol_acidity'] = df['alcohol'] / df['volatile acidity']
+#df['chlorides_sulphates'] = df['chlorides'] / df['sulphates']
+#df['total_acidity'] = df['fixed acidity'] * df['volatile acidity']
+
 # create a correlation matrix
 corr_matrix = df.corr().abs()
 
@@ -59,7 +67,6 @@ X_test = scaler.transform(X_test)
 
 
 # Apply SMOTE to balance the classes
-# create the SMOTE object with k_neighbors=5
 smote = SMOTE(k_neighbors = 4)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
@@ -73,18 +80,21 @@ param_grid = {
 
 # Perform grid search cross-validation to find best hyperparameters
 White_model = RandomForestClassifier()
-grid_search = GridSearchCV(White_model, param_grid=param_grid, cv=5)
+grid_search = GridSearchCV(White_model, param_grid=param_grid, cv = 10)
 grid_search.fit(X_train, y_train)
 print("Best parameters found: ", grid_search.best_params_)
 
 
 # Train model with best hyperparameters and make predictions
-White_model = RandomForestClassifier(**grid_search.best_params_)
+White_model = RandomForestClassifier(class_weight='balanced', **grid_search.best_params_)
 White_model.fit(X_train, y_train)
+y_pred = White_model.predict(X_test)
 
+# The accuracy score for the white model
+White_score = accuracy_score(y_test, y_pred)
+print(f'The accuracy for the White model is: {White_score}')
 
 # Evaluate performance with multiple metrics
-y_pred = White_model.predict(X_test)
 print("Classification report:\n", classification_report(y_test, y_pred, zero_division=1))
 print("Confusion matrix:\n", confusion_matrix(y_test, y_pred))
 
@@ -93,31 +103,26 @@ print("Confusion matrix:\n", confusion_matrix(y_test, y_pred))
 importances = White_model.feature_importances_
 for i, feature in enumerate(X.columns):
     print(feature + ":", importances[i])
-    
+
 
 # Use the cross_val_score function from sklearn.model_selection to evaluate the model using cross-validation
-White_model = RandomForestClassifier(**grid_search.best_params_)
 scores = cross_val_score(White_model, X_train, y_train, cv=5)
 print("Cross-validation scores:", scores)
 print("Mean cross-validation score:", scores.mean())
 
+
 # Train model with best hyperparameters and make predictions
 White_model = RandomForestClassifier(**grid_search.best_params_)
 White_model.fit(X_train, y_train)
-y_pred = White_model.predict(X_test)  # add this line
-
-# Evaluate performance with multiple metrics
-White_score = accuracy_score(y_test, y_pred)
-print("Classification report:\n", classification_report(y_test, y_pred, zero_division=1))
-print("Confusion matrix:\n", confusion_matrix(y_test, y_pred))
+y_pred = White_model.predict(X_test)
 
 
 # Calculate accuracy score and save the model using Pickle
+White_score = accuracy_score(y_test, y_pred)
 with open('White_model.pkl', 'wb') as file:
     pickle.dump(White_model, file)
 with open('White_score.pkl', 'wb') as file:
     pickle.dump(White_score, file)
-
 
 
 # Load the model from disk
@@ -128,7 +133,6 @@ with open('White_model.pkl', 'rb') as file:
 with open('White_score.pkl', 'rb') as file:
     White_score = pickle.load(file)
 
-
 # Test the model with the test data
 score = White_model.score(X_test, y_test)
 
@@ -137,3 +141,4 @@ if score == White_score:
     print("The model is correctly fitted and ready for use.")
 else:
     print("The model is not correctly fitted or ready for use.")
+

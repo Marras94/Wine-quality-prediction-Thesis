@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np 
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -35,16 +34,18 @@ to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
 df.drop(to_drop, axis=1, inplace=True)
 
 
-'''df.isnull().sum()
-
-df.update(df.fillna(df.mean()))'''
 # Fill missing values with mean
 df.fillna(df.mean(), inplace=True)
+
+
+# Create new features - Feature Engineering
+#df['alcohol_acidity'] = df['alcohol'] / df['volatile acidity']
+#df['chlorides_sulphates'] = df['chlorides'] / df['sulphates']
+#df['total_acidity'] = df['fixed acidity'] * df['volatile acidity']
 
 # Split data into features and labels
 X = df.drop(['quality'], axis=1)
 y = df['quality']
-
 
 # Set the random seed to a fixed value
 np.random.seed(50)
@@ -68,8 +69,9 @@ param_grid = {
     'n_estimators': [100, 200, 500],
     'max_depth': [5, 10, None],
     'min_samples_split': [2, 5, 10]}
+
 Red_model = RandomForestClassifier()
-grid_search = GridSearchCV(Red_model, param_grid=param_grid, cv=5)
+grid_search = GridSearchCV(Red_model, param_grid=param_grid, cv = 5)
 grid_search.fit(X_train, y_train)
 print("Best parameters found: ", grid_search.best_params_)
 
@@ -80,21 +82,24 @@ Red_model.fit(X_train, y_train)
 y_pred = Red_model.predict(X_test)
 
 
-# Evaluate performance with multiple metrics and print feature importances
+# The accuracy score for the red model
 Red_score = accuracy_score(y_test, y_pred)
+print(f'The accuracy for the Red model is: {Red_score}')
+
+# Evaluate performance with multiple metrics and print feature importances
 print("Classification report:\n", classification_report(y_test, y_pred, zero_division=1))
 print("Confusion matrix:\n", confusion_matrix(y_test, y_pred))
 
 importances = Red_model.feature_importances_
 for i, feature in enumerate(X.columns):
     print(feature + ":", importances[i])
-
-    
+  
 
 # Use the cross_val_score function from sklearn.model_selection to evaluate the model using cross-validation
 scores = cross_val_score(Red_model, X_train, y_train, cv=5)
 print("Cross-validation scores:", scores)
 print("Mean cross-validation score:", scores.mean())
+
 
 # Train model with best hyperparameters and make predictions
 Red_model = RandomForestClassifier(**grid_search.best_params_)
@@ -102,13 +107,12 @@ Red_model.fit(X_train, y_train)
 y_pred = Red_model.predict(X_test)  # add this line
 
 
-
 # Calculate accuracy score and save the model using Pickle
+Red_score = accuracy_score(y_test, y_pred)
 with open('Red_model.pkl', 'wb') as file:
     pickle.dump(Red_model, file)
 with open('Red_score.pkl', 'wb') as file:
     pickle.dump(Red_score, file)
-
 
 
 # Load the model from disk

@@ -6,9 +6,6 @@ from kivy.uix.screenmanager import ScreenManager
 import numpy as np
 import pickle
 
-#from RF_redwine import Red_model, Red_score
-#from RF_whitewine import White_model, White_score
-
 # Load the saved red wine model and score
 with open('Red_model.pkl', 'rb') as file:
     Red_model = pickle.load(file)
@@ -24,8 +21,6 @@ with open('White_score.pkl', 'rb') as file:
     White_score = pickle.load(file)
 
 
-# Set the default model to None
-#model = None
 
 # Window number 1.
 class StartWindow(Screen):
@@ -54,29 +49,50 @@ class StartWindow(Screen):
 class AttributeWindow(Screen):
 
     def get_inputs(self):
-        fixed_acidity = float(self.ids.text_field1.text)
-        volatile_acidity = float(self.ids.text_field2.text)
-        citric_acid = float(self.ids.text_field3.text)
-        residual_sugar = float(self.ids.text_field5.text)
-        chlorides = float(self.ids.text_field6.text)
-        free_sulfur_dioxide = float(self.ids.text_field4.text)
-        total_sulfur_dioxide = float(self.ids.text_field7.text)
-        density = float(self.ids.text_field8.text)
-        pH = float(self.ids.text_field9.text)
-        sulphates = float(self.ids.text_field10.text)
-        alcohol = float(self.ids.text_field11.text)
-        inputs = [fixed_acidity, volatile_acidity, citric_acid, residual_sugar,
-                  chlorides, free_sulfur_dioxide, total_sulfur_dioxide, density,
-                  pH, sulphates, alcohol]
+        model = self.manager.get_screen("Start").model
 
-        return inputs
+        if model == Red_model:
+            fixed_acidity = float(self.ids.text_field1.text)
+            volatile_acidity = float(self.ids.text_field2.text)
+            citric_acid = float(self.ids.text_field3.text)
+            residual_sugar = float(self.ids.text_field5.text)
+            chlorides = float(self.ids.text_field6.text)
+            free_sulfur_dioxide = float(self.ids.text_field4.text)
+            total_sulfur_dioxide = float(self.ids.text_field7.text)
+            density = float(self.ids.text_field8.text)
+            pH = float(self.ids.text_field9.text)
+            sulphates = float(self.ids.text_field10.text)
+            alcohol = float(self.ids.text_field11.text)
+            total_acidity = float(fixed_acidity * volatile_acidity)
+            alcohol_acidity = float(alcohol / volatile_acidity)
+            chlorides_sulphates = float(chlorides / sulphates)
 
+            inputs = [fixed_acidity, volatile_acidity, citric_acid, residual_sugar,
+                    chlorides, free_sulfur_dioxide, total_sulfur_dioxide, density,
+                    pH, sulphates, alcohol, total_acidity, alcohol_acidity, chlorides_sulphates]
+            return inputs
+
+        if model == White_model:
+            fixed_acidity = float(self.ids.text_field1.text)
+            volatile_acidity = float(self.ids.text_field2.text)
+            citric_acid = float(self.ids.text_field3.text)
+            residual_sugar = float(self.ids.text_field5.text)
+            chlorides = float(self.ids.text_field6.text)
+            free_sulfur_dioxide = float(self.ids.text_field4.text)
+            total_sulfur_dioxide = float(self.ids.text_field7.text)
+            #density = float(self.ids.text_field8.text)
+            pH = float(self.ids.text_field9.text)
+            sulphates = float(self.ids.text_field10.text)
+            #alcohol = float(self.ids.text_field11.text)
+            inputs = [fixed_acidity, volatile_acidity, citric_acid, residual_sugar,
+                    chlorides, free_sulfur_dioxide, total_sulfur_dioxide,
+                    pH, sulphates]
+            return inputs
+        
     def make_prediction(self):
         inputs = self.get_inputs()
         model = self.manager.get_screen("Start").model
-        print(model)
         
-    
         if model is None:
             self.manager.get_screen("Predict").update_labels(0, "Please select a wine type first.")
 
@@ -90,15 +106,15 @@ class AttributeWindow(Screen):
 
             # Display the accuracy score based on the selected model
             if model == Red_model:
-                print('REEEED')
+                print('RED')
                 accuracy = Red_score
                 
             elif model == White_model:
-                print('Whiiiiite')
+                print('White')
                 accuracy = White_score
 
             else:
-                print('Nooope')
+                print("Can't find model")
                 accuracy = "N/A"
 
             # Update the labels in the PredictWindow
@@ -159,14 +175,6 @@ class WineQualityApp(MDApp):
         sm.add_widget(PredictWindow(name='Predict'))
 
         return Prediction
-
-    '''def load_model(self, model_file):
-        with open(model_file, 'rb') as f:
-            model = pickle.load(f)
-        print(model)
-        print(model.n_estimators)
-        print(model.max_depth)
-        return model'''
 
     
 if __name__ == '__main__':
